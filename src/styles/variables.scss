@@ -1,0 +1,60 @@
+// 颜色变量
+$color-primary: #5980ff;
+$color-success: #52c41a;
+$color-danger: #f23c3c;
+$color-warning: #ffad0a;
+$color-text-primary: #333;
+$color-text-secondary: #666;
+$color-text-placeholder: #999;
+$color-border: #f9f9f9;
+$color-bg-light: #f5f7fa;
+$color-bg-hover: #f0f2f5;
+
+// 尺寸变量
+$border-radius: 8px;
+$input-height: 40px;
+
+// 动画定义
+@keyframes ep-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ep-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ep-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ep-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

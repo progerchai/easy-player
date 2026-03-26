@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
     openFolderDialog: () => ipcRenderer.invoke('open-folder-dialog'),
+    openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
     readFolderVideos: (folderPath) => ipcRenderer.invoke('read-folder-videos', folderPath),
     saveProgress: (data) => ipcRenderer.invoke('save-progress', data),
     getProgress: (videoPath) => ipcRenderer.invoke('get-progress', videoPath),

@@ -4,6 +4,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  base: './',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -12,10 +13,23 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `
-          @use "@/styles/variables.scss" as variables;
-        `,
+        api: 'modern-compiler',
+        additionalData: `@use "@/styles/variables.scss" as variables;\n`,
       },
     },
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-antd': ['antd', 'dayjs'],
+        },
+      },
+    },
+  },
+  server: {
+    port: 5173,
   },
 });

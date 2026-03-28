@@ -21,6 +21,7 @@ function createWindow() {
     frame: true,
     backgroundColor: '#f0f2f5',
     titleBarStyle: 'hiddenInset',
+    show: true,
   });
 
   if (isDev) {

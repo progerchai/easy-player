@@ -32,6 +32,7 @@ export interface ElectronAPI {
   getProgress: (videoPath: string) => Promise<VideoProgress | null>;
   getVideoMetadata: (videoPath: string) => Promise<VideoMetadata | null>;
   clearAllData: () => Promise<{ success: boolean; error?: string }>;
+  setDragRegion: (selector: string) => void;
 }
 
 declare global {

@@ -21,6 +21,13 @@ const AppContent: React.FC = () => {
   const [currentVideo, setCurrentVideo] = useState<VideoItem | null>(null);
   const [recentPlayed, setRecentPlayed] = useState<VideoItem[]>([]);
 
+  // useEffect(() => {
+  //   // 设置 Electron 窗口的可拖拽区域
+  //   if (window.electronAPI?.setDragRegion) {
+  //     window.electronAPI.setDragRegion('.ep-sidebar-header');
+  //   }
+  // }, []);
+
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {

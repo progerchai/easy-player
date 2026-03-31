@@ -23,7 +23,7 @@ import './VideoPlayer.scss';
 
 const prefix = 'ep-videoplayer';
 
-const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4, 5];
+const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 1.7, 1.8, 1.9, 2, 3, 4, 5];
 const PROGRESS_SAVE_INTERVAL = 5;
 
 interface VideoPlayerProps {
@@ -204,7 +204,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const handleSeek = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const rect = e.currentTarget.getBoundingClientRect();
-      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const ratio = Math.max(
+        0,
+        Math.min(1, (e.clientX - rect.left) / rect.width),
+      );
       if (videoRef.current && duration > 0) {
         videoRef.current.currentTime = ratio * duration;
       }
@@ -282,7 +285,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const showVideoInfo = useCallback(async () => {
     if (!currentVideo?.path) return;
-    const metadata = await window.electronAPI?.getVideoMetadata(currentVideo.path);
+    const metadata = await window.electronAPI?.getVideoMetadata(
+      currentVideo.path,
+    );
     if (metadata) {
       setVideoInfo(metadata);
       setShowInfoModal(true);
@@ -363,17 +368,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </div>
       ) : (
         <>
-          <video
-            ref={videoRef}
-            src={currentVideo.path}
-            onTimeUpdate={handleTimeUpdate}
-            onLoadedMetadata={handleLoadedMetadata}
-            onPlay={() => setIsPlaying(true)}
-            onPause={() => setIsPlaying(false)}
-            onEnded={handleVideoEnded}
-            onClick={togglePlay}
-            style={{ filter: `brightness(${brightness}%)` }}
-          />
+          <div className={`${prefix}-video-wrapper`}>
+            <video
+              ref={videoRef}
+              src={currentVideo.path}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={handleVideoEnded}
+              onClick={togglePlay}
+              style={{ filter: `brightness(${brightness}%)` }}
+            />
+            <div className={`${prefix}-video-overlay`}>
+              <span className={`${prefix}-video-title`}>{currentVideo.name}</span>
+            </div>
+          </div>
 
           {isDragging && (
             <div className={`${prefix}-drag-overlay`}>
@@ -382,24 +392,35 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </div>
           )}
 
-          <div className={`${prefix}-controls ${showControls ? `${prefix}-controls--visible` : ''}`}>
+          <div
+            className={`${prefix}-controls ${showControls ? `${prefix}-controls--visible` : ''}`}
+          >
             <div className={`${prefix}-progress-bar`} onClick={handleSeek}>
               <div
                 className={`${prefix}-progress`}
-                style={{ width: duration > 0 ? `${(currentTime / duration) * 100}%` : '0%' }}
+                style={{
+                  width:
+                    duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
+                }}
               />
             </div>
 
             <div className={`${prefix}-buttons`}>
               <div className={`${prefix}-left`}>
                 <Button
-                  type="text"
-                  icon={isPlaying ? <Pause size={22} fill="#fff" /> : <Play size={22} fill="#fff" />}
+                  type='text'
+                  icon={
+                    isPlaying ? (
+                      <Pause size={22} fill='#fff' />
+                    ) : (
+                      <Play size={22} fill='#fff' />
+                    )
+                  }
                   onClick={togglePlay}
                   className={`${prefix}-ctrl-btn`}
                 />
                 <Button
-                  type="text"
+                  type='text'
                   icon={<SkipBack size={18} />}
                   onClick={() => {
                     if (videoRef.current) videoRef.current.currentTime -= 10;
@@ -407,7 +428,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   className={`${prefix}-ctrl-btn`}
                 />
                 <Button
-                  type="text"
+                  type='text'
                   icon={<SkipForward size={18} />}
                   onClick={() => {
                     if (videoRef.current) videoRef.current.currentTime += 10;
@@ -422,8 +443,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <div className={`${prefix}-right`}>
                 <div className={`${prefix}-volume`}>
                   <Button
-                    type="text"
-                    icon={isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                    type='text'
+                    icon={
+                      isMuted || volume === 0 ? (
+                        <VolumeX size={18} />
+                      ) : (
+                        <Volume2 size={18} />
+                      )
+                    }
                     onClick={toggleMute}
                     className={`${prefix}-ctrl-btn`}
                   />
@@ -451,33 +478,42 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </div>
 
                 <Dropdown menu={{ items: speedMenuItems }} trigger={['click']}>
-                  <Button type="text" className={`${prefix}-ctrl-btn ${prefix}-speed-btn`}>
+                  <Button
+                    type='text'
+                    className={`${prefix}-ctrl-btn ${prefix}-speed-btn`}
+                  >
                     <Gauge size={16} />
                     <span>{playbackRate}x</span>
                   </Button>
                 </Dropdown>
 
                 <Button
-                  type="text"
+                  type='text'
                   icon={<Camera size={18} />}
                   onClick={takeScreenshot}
                   className={`${prefix}-ctrl-btn`}
                 />
                 <Button
-                  type="text"
+                  type='text'
                   icon={<PictureInPicture2 size={18} />}
                   onClick={togglePiP}
                   className={`${prefix}-ctrl-btn`}
                 />
                 <Button
-                  type="text"
+                  type='text'
                   icon={<Info size={18} />}
                   onClick={showVideoInfo}
                   className={`${prefix}-ctrl-btn`}
                 />
                 <Button
-                  type="text"
-                  icon={isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+                  type='text'
+                  icon={
+                    isFullscreen ? (
+                      <Minimize size={18} />
+                    ) : (
+                      <Maximize size={18} />
+                    )
+                  }
                   onClick={toggleFullscreen}
                   className={`${prefix}-ctrl-btn`}
                 />
@@ -486,7 +522,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           </div>
 
           <Modal
-            title="视频信息"
+            title='视频信息'
             open={showInfoModal}
             onCancel={() => setShowInfoModal(false)}
             footer={null}
@@ -496,11 +532,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <div className={`${prefix}-info-grid`}>
                 <div className={`${prefix}-info-row`}>
                   <span className={`${prefix}-info-label`}>文件名</span>
-                  <span className={`${prefix}-info-value`}>{videoInfo.name}</span>
+                  <span className={`${prefix}-info-value`}>
+                    {videoInfo.name}
+                  </span>
                 </div>
                 <div className={`${prefix}-info-row`}>
                   <span className={`${prefix}-info-label`}>文件大小</span>
-                  <span className={`${prefix}-info-value`}>{formatSize(videoInfo.size)}</span>
+                  <span className={`${prefix}-info-value`}>
+                    {formatSize(videoInfo.size)}
+                  </span>
                 </div>
                 <div className={`${prefix}-info-row`}>
                   <span className={`${prefix}-info-label`}>创建时间</span>
@@ -516,7 +556,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 </div>
                 <div className={`${prefix}-info-row`}>
                   <span className={`${prefix}-info-label`}>时长</span>
-                  <span className={`${prefix}-info-value`}>{formatTime(duration)}</span>
+                  <span className={`${prefix}-info-value`}>
+                    {formatTime(duration)}
+                  </span>
                 </div>
               </div>
             )}

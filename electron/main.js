@@ -18,9 +18,9 @@ function createWindow() {
       contextIsolation: true,
       webSecurity: false,
     },
-    frame: true,
+    frame: false,
     backgroundColor: '#f0f2f5',
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: 'hidden',
     show: true,
   });
 
@@ -181,4 +181,23 @@ ipcMain.handle('clear-all-data', async () => {
     console.error('清除数据失败:', error);
     return { success: false, error: error.message };
   }
+});
+
+// 窗口控制
+ipcMain.on('window-minimize', () => {
+  if (mainWindow) mainWindow.minimize();
+});
+
+ipcMain.on('window-maximize', () => {
+  if (mainWindow) {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  }
+});
+
+ipcMain.on('window-close', () => {
+  if (mainWindow) mainWindow.close();
 });

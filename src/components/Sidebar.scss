@@ -10,8 +10,12 @@ $prefix: ep-sidebar;
   flex-shrink: 0;
 
   &-header {
+    position: relative;
     padding: 20px;
     border-bottom: 1px solid variables.$color-border;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   &-logo {
@@ -112,6 +116,21 @@ $prefix: ep-sidebar;
     &:hover {
       background: variables.$color-bg-hover;
       transform: translateX(3px);
+    }
+
+    &--playing {
+      background: variables.$color-primary-light;
+      border-left: 3px solid variables.$color-primary;
+
+      .#{$prefix}-item-icon {
+        background: variables.$color-primary;
+        color: #fff;
+      }
+
+      .#{$prefix}-item-name {
+        color: variables.$color-primary;
+        font-weight: 600;
+      }
     }
 
     &-icon {

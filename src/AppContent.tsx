@@ -142,6 +142,7 @@ const AppContent: React.FC = () => {
         onViewChange={setCurrentView}
         videos={videos}
         recentPlayed={recentPlayed}
+        currentVideo={currentVideo}
         onPlayVideo={playVideo}
         onClearData={handleClearData}
         onOpenFolder={handleOpenFolder}

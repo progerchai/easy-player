@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Popconfirm } from 'antd';
 import {
   MonitorPlay,
@@ -6,6 +6,9 @@ import {
   FolderOpen,
   Film,
   Trash2,
+  Minus,
+  Square,
+  X,
 } from 'lucide-react';
 import type { VideoItem, ViewType } from '@/types/video';
 import './Sidebar.scss';
@@ -17,6 +20,7 @@ interface SidebarProps {
   onViewChange: (view: ViewType) => void;
   videos: VideoItem[];
   recentPlayed: VideoItem[];
+  currentVideo: VideoItem | null;
   onPlayVideo: (video: VideoItem) => void;
   onClearData: () => void;
   onOpenFolder: () => void;
@@ -45,6 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onViewChange,
   videos,
   recentPlayed,
+  currentVideo,
   onPlayVideo,
   onClearData,
   onOpenFolder,
@@ -65,6 +70,41 @@ const Sidebar: React.FC<SidebarProps> = ({
   const listData = currentView === 'recent' ? recentPlayed : videos;
   const listTitle = currentView === 'recent' ? '最近播放' : '播放列表';
   const emptyText = currentView === 'recent' ? '暂无播放记录' : '暂无视频';
+
+  useEffect(() => {
+    // 设置拖拽区域
+    const headerElement = document.querySelector(
+      `.${prefix}-header`,
+    ) as HTMLElement;
+    if (headerElement) {
+      (headerElement.style as any).webkitAppRegion = 'drag';
+      const buttons = headerElement.querySelectorAll<HTMLButtonElement>(
+        'button, .ep-window-control-btn',
+      );
+      buttons.forEach((btn) => {
+        (btn.style as any).webkitAppRegion = 'no-drag';
+      });
+    }
+
+    // 清理函数
+    return () => {
+      if (headerElement) {
+        (headerElement.style as any).webkitAppRegion = '';
+      }
+    };
+  }, []);
+
+  const handleMinimize = () => {
+    window.electronAPI?.minimizeWindow();
+  };
+
+  const handleMaximize = () => {
+    window.electronAPI?.maximizeWindow();
+  };
+
+  const handleClose = () => {
+    window.electronAPI?.closeWindow();
+  };
 
   return (
     <div className={prefix}>
@@ -108,42 +148,40 @@ const Sidebar: React.FC<SidebarProps> = ({
               <p>{emptyText}</p>
             </div>
           ) : (
-            listData.map((video, index) => (
-              <div
-                key={`${currentView}-${index}`}
-                className={`${prefix}-item`}
-                onClick={() => onPlayVideo(video)}
-              >
-                <div className={`${prefix}-item-icon`}>
-                  <Film size={18} />
-                </div>
-                <div className={`${prefix}-item-info`}>
-                  <div className={`${prefix}-item-name`}>{video.name}</div>
-                  <div className={`${prefix}-item-meta`}>
-                    {currentView === 'recent'
-                      ? formatDate(video.lastPlayed)
-                      : formatSize(video.size)}
+            listData.map((video, index) => {
+              const isPlaying = currentVideo?.path === video.path;
+              return (
+                <div
+                  key={`${currentView}-${index}`}
+                  className={`${prefix}-item ${isPlaying ? `${prefix}-item--playing` : ''}`}
+                  onClick={() => onPlayVideo(video)}
+                >
+                  <div className={`${prefix}-item-icon`}>
+                    <Film size={18} />
+                  </div>
+                  <div className={`${prefix}-item-info`}>
+                    <div className={`${prefix}-item-name`}>{video.name}</div>
+                    <div className={`${prefix}-item-meta`}>
+                      {currentView === 'recent'
+                        ? formatDate(video.lastPlayed)
+                        : formatSize(video.size)}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
 
       <div className={`${prefix}-footer`}>
         <Popconfirm
-          title="确定清除所有播放记录？"
+          title='确定清除所有播放记录？'
           onConfirm={onClearData}
-          okText="确定"
-          cancelText="取消"
+          okText='确定'
+          cancelText='取消'
         >
-          <Button
-            icon={<Trash2 size={16} />}
-            type="text"
-            danger
-            size="small"
-          >
+          <Button icon={<Trash2 size={16} />} type='text' danger size='small'>
             清除记录
           </Button>
         </Popconfirm>

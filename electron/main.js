@@ -6,6 +6,17 @@ let mainWindow;
 
 const isDev = !app.isPackaged;
 
+// 获取应用根目录路径
+const getAppRoot = () => {
+  if (isDev) {
+    return process.cwd();
+  } else {
+    // 生产环境：在 asar 中，__dirname 类似 /path/to/app.asar/electron
+    // 需要返回 /path/to/app.asar
+    return path.resolve(__dirname, '..');
+  }
+};
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -28,7 +39,12 @@ function createWindow() {
     mainWindow.loadURL('http://localhost:5173');
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    // 生产环境：加载 dist/index.html
+    const appRoot = getAppRoot();
+    const indexPath = path.join(appRoot, 'dist', 'index.html');
+    console.log('App root:', appRoot);
+    console.log('Loading file:', indexPath);
+    mainWindow.loadFile(indexPath);
   }
 
   mainWindow.on('closed', () => {

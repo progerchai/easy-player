@@ -180,6 +180,15 @@ $prefix: ep-videoplayer;
   }
 }
 
+// 修复全屏时 Dropdown 菜单显示问题
+:global(.ant-dropdown) {
+  z-index: 9999 !important;
+}
+
+:global(.ant-dropdown-menu) {
+  z-index: 9999 !important;
+}
+
 .#{$prefix}-progress-bar {
   width: 100%;
   height: 4px;

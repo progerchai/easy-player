@@ -381,7 +381,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               style={{ filter: `brightness(${brightness}%)` }}
             />
             <div className={`${prefix}-video-overlay`}>
-              <span className={`${prefix}-video-title`}>{currentVideo.name}</span>
+              <span className={`${prefix}-video-title`}>
+                {currentVideo.name}
+              </span>
             </div>
           </div>
 
@@ -477,7 +479,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   />
                 </div>
 
-                <Dropdown menu={{ items: speedMenuItems }} trigger={['click']}>
+                <Dropdown
+                  menu={{ items: speedMenuItems }}
+                  trigger={['click']}
+                  getPopupContainer={() => document.body}
+                >
                   <Button
                     type='text'
                     className={`${prefix}-ctrl-btn ${prefix}-speed-btn`}

@@ -79,10 +79,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
+    const savedRate = localStorage.getItem('ep_playbackRate');
+    if (savedRate) {
+      const rate = parseFloat(savedRate);
+      if (SPEED_OPTIONS.includes(rate)) {
+        setPlaybackRate(rate);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-    setPlaybackRate(1);
     setBrightness(100);
   }, [currentVideo?.path]);
 
@@ -239,6 +248,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const handleSpeedChange = useCallback((rate: number) => {
     setPlaybackRate(rate);
+    localStorage.setItem('ep_playbackRate', String(rate));
     if (videoRef.current) {
       videoRef.current.playbackRate = rate;
     }

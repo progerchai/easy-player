@@ -9,8 +9,9 @@ import {
   Minus,
   Square,
   X,
+  History,
 } from 'lucide-react';
-import type { VideoItem, ViewType } from '@/types/video';
+import type { VideoItem, ViewType, FolderItem } from '@/types/video';
 import './Sidebar.scss';
 
 const prefix = 'ep-sidebar';
@@ -20,10 +21,13 @@ interface SidebarProps {
   onViewChange: (view: ViewType) => void;
   videos: VideoItem[];
   recentPlayed: VideoItem[];
+  historyFolders: FolderItem[];
   currentVideo: VideoItem | null;
   onPlayVideo: (video: VideoItem) => void;
   onClearData: () => void;
+  onClearHistory: () => void;
   onOpenFolder: () => void;
+  onOpenHistoryFolder: (folderPath: string) => void;
 }
 
 const formatSize = (bytes?: number): string => {
@@ -49,15 +53,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   onViewChange,
   videos,
   recentPlayed,
+  historyFolders,
   currentVideo,
   onPlayVideo,
   onClearData,
+  onClearHistory,
   onOpenFolder,
+  onOpenHistoryFolder,
 }) => {
   const navItems: { key: ViewType; icon: React.ReactNode; label: string }[] = [
     { key: 'player', icon: <MonitorPlay size={18} />, label: '播放器' },
     { key: 'recent', icon: <Clock size={18} />, label: '最近播放' },
     { key: 'folder', icon: <FolderOpen size={18} />, label: '文件夹' },
+    { key: 'history', icon: <History size={18} />, label: '历史文件夹' },
   ];
 
   const handleNavClick = (key: ViewType) => {
@@ -67,9 +75,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const listData = currentView === 'recent' ? recentPlayed : videos;
-  const listTitle = currentView === 'recent' ? '最近播放' : '播放列表';
-  const emptyText = currentView === 'recent' ? '暂无播放记录' : '暂无视频';
+  const listData = currentView === 'recent' ? recentPlayed : currentView === 'history' ? historyFolders : videos;
+  const listTitle = currentView === 'recent' ? '最近播放' : currentView === 'history' ? '历史文件夹' : '播放列表';
+  const emptyText = currentView === 'recent' ? '暂无播放记录' : currentView === 'history' ? '暂无历史文件夹' : '暂无视频';
 
   useEffect(() => {
     // 设置拖拽区域
@@ -132,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <div className={`${prefix}-content`}>
         <div className={`${prefix}-section-header`}>
-          <Film size={16} />
+          {currentView === 'history' ? <History size={16} /> : <Film size={16} />}
           <span>{listTitle}</span>
           <span className={`${prefix}-count`}>{listData.length}</span>
         </div>
@@ -142,11 +150,31 @@ const Sidebar: React.FC<SidebarProps> = ({
             <div className={`${prefix}-empty`}>
               {currentView === 'recent' ? (
                 <Clock size={48} strokeWidth={1} />
+              ) : currentView === 'history' ? (
+                <History size={48} strokeWidth={1} />
               ) : (
                 <Film size={48} strokeWidth={1} />
               )}
               <p>{emptyText}</p>
             </div>
+          ) : currentView === 'history' ? (
+            listData.map((folder: FolderItem) => (
+              <div
+                key={folder.path}
+                className={`${prefix}-item`}
+                onClick={() => onOpenHistoryFolder(folder.path)}
+              >
+                <div className={`${prefix}-item-icon`}>
+                  <FolderOpen size={18} />
+                </div>
+                <div className={`${prefix}-item-info`}>
+                  <div className={`${prefix}-item-name`}>{folder.name}</div>
+                  <div className={`${prefix}-item-meta`}>
+                    {formatDate(folder.lastOpened)}
+                  </div>
+                </div>
+              </div>
+            ))
           ) : (
             listData.map((video, index) => {
               const isPlaying = currentVideo?.path === video.path;
@@ -175,16 +203,29 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className={`${prefix}-footer`}>
-        <Popconfirm
-          title='确定清除所有播放记录？'
-          onConfirm={onClearData}
-          okText='确定'
-          cancelText='取消'
-        >
-          <Button icon={<Trash2 size={16} />} type='text' danger size='small'>
-            清除记录
-          </Button>
-        </Popconfirm>
+        {currentView === 'history' ? (
+          <Popconfirm
+            title='确定清除所有历史文件夹记录？'
+            onConfirm={onClearHistory}
+            okText='确定'
+            cancelText='取消'
+          >
+            <Button icon={<Trash2 size={16} />} type='text' danger size='small'>
+              清除记录
+            </Button>
+          </Popconfirm>
+        ) : (
+          <Popconfirm
+            title='确定清除所有播放记录？'
+            onConfirm={onClearData}
+            okText='确定'
+            cancelText='取消'
+          >
+            <Button icon={<Trash2 size={16} />} type='text' danger size='small'>
+              清除记录
+            </Button>
+          </Popconfirm>
+        )}
       </div>
     </div>
   );

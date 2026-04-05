@@ -18,7 +18,13 @@ export interface VideoMetadata {
   modified: string;
 }
 
-export type ViewType = 'player' | 'recent' | 'folder';
+export interface FolderItem {
+  path: string;
+  name: string;
+  lastOpened?: number;
+}
+
+export type ViewType = 'player' | 'recent' | 'folder' | 'history';
 
 export interface ElectronAPI {
   openFolderDialog: () => Promise<{ canceled: boolean; filePaths: string[] }>;

@@ -44,6 +44,7 @@ $prefix: ep-sidebar;
 
   &-nav-btn {
     text-align: left;
+    justify-content: flex-start;
     height: 40px;
     border-radius: variables.$border-radius !important;
   }

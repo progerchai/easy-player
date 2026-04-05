@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Button, Modal, Slider, Dropdown } from 'antd';
-import type { MenuProps } from 'antd';
+import { Button, Modal, Slider, Popover } from 'antd';
 import {
   Play,
   Pause,
@@ -23,7 +22,7 @@ import './VideoPlayer.scss';
 
 const prefix = 'ep-videoplayer';
 
-const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 1.7, 1.8, 1.9, 2, 3, 4, 5];
+const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 1.7, 1.8, 2, 2.2, 2.4, 3];
 const PROGRESS_SAVE_INTERVAL = 5;
 
 interface VideoPlayerProps {
@@ -326,11 +325,24 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [videos, currentVideo?.path, onPlayVideo]);
 
-  const speedMenuItems: MenuProps['items'] = SPEED_OPTIONS.map((rate) => ({
-    key: String(rate),
-    label: `${rate}x`,
-    onClick: () => handleSpeedChange(rate),
-  }));
+  const [speedMenuOpen, setSpeedMenuOpen] = useState(false);
+
+  const speedMenuContent = (
+    <div className={`${prefix}-speed-menu`}>
+      {SPEED_OPTIONS.map((rate) => (
+        <div
+          key={rate}
+          className={`${prefix}-speed-item ${playbackRate === rate ? `${prefix}-speed-item--active` : ''}`}
+          onClick={() => {
+            handleSpeedChange(rate);
+            setSpeedMenuOpen(false);
+          }}
+        >
+          {rate}x
+        </div>
+      ))}
+    </div>
+  );
 
   if (currentView === 'recent' || currentView === 'folder') {
     return (
@@ -479,19 +491,23 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   />
                 </div>
 
-                <Dropdown
-                  menu={{ items: speedMenuItems }}
+                <Popover
+                  content={speedMenuContent}
+                  open={speedMenuOpen}
+                  onOpenChange={setSpeedMenuOpen}
                   trigger={['click']}
                   getPopupContainer={() => document.body}
+                  rootClassName={`${prefix}-speed-popover`}
                 >
                   <Button
                     type='text'
                     className={`${prefix}-ctrl-btn ${prefix}-speed-btn`}
+                    title='播放速度'
                   >
                     <Gauge size={16} />
                     <span>{playbackRate}x</span>
                   </Button>
-                </Dropdown>
+                </Popover>
 
                 <Button
                   type='text'

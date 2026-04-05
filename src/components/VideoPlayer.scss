@@ -246,6 +246,54 @@ $prefix: ep-videoplayer;
   font-size: 0.8rem;
 }
 
+.#{$prefix}-speed-popover {
+  .ant-popover-inner-content {
+    padding: 0;
+  }
+}
+
+.#{$prefix}-speed-menu {
+  max-height: 200px;
+  overflow-y: auto;
+  min-width: 80px;
+  padding: 4px 0;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+.#{$prefix}-speed-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: variables.$color-text-primary;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: variables.$color-bg-hover;
+  }
+
+  &--active {
+    color: variables.$color-primary;
+    font-weight: 600;
+    background: variables.$color-primary-light;
+  }
+}
+
 .#{$prefix}-time {
   color: rgba(255, 255, 255, 0.75);
   font-size: 0.85rem;

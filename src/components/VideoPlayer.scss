@@ -49,6 +49,12 @@ $prefix: ep-videoplayer;
   justify-content: center;
   z-index: 10;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &--visible {
+    opacity: 1;
+  }
 }
 
 .#{$prefix}-video-title {

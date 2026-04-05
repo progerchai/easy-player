@@ -392,7 +392,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               onClick={togglePlay}
               style={{ filter: `brightness(${brightness}%)` }}
             />
-            <div className={`${prefix}-video-overlay`}>
+            <div className={`${prefix}-video-overlay ${showControls ? `${prefix}-video-overlay--visible` : ''}`}>
               <span className={`${prefix}-video-title`}>
                 {currentVideo.name}
               </span>

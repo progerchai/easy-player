@@ -331,9 +331,35 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     setIsPlaying(false);
     const idx = videos.findIndex((v) => v.path === currentVideo?.path);
     if (idx >= 0 && idx < videos.length - 1) {
-      onPlayVideo(videos[idx + 1]);
+      const nextVideo = videos[idx + 1];
+      if (nextVideo) {
+        setNextVideoInfo(nextVideo);
+        setShowNextVideoModal(true);
+      }
     }
-  }, [videos, currentVideo?.path, onPlayVideo]);
+  }, [videos, currentVideo?.path]);
+
+  const [showNextVideoModal, setShowNextVideoModal] = useState(false);
+  const [nextVideoInfo, setNextVideoInfo] = useState<VideoItem | null>(null);
+
+  const handlePlayNext = useCallback(() => {
+    if (nextVideoInfo) {
+      onPlayVideo(nextVideoInfo);
+      setShowNextVideoModal(false);
+      setNextVideoInfo(null);
+      // 下一个视频开始播放
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.play();
+        }
+      }, 100);
+    }
+  }, [nextVideoInfo, onPlayVideo]);
+
+  const handleSkipNext = useCallback(() => {
+    setShowNextVideoModal(false);
+    setNextVideoInfo(null);
+  }, []);
 
   const [speedMenuOpen, setSpeedMenuOpen] = useState(false);
 
@@ -402,7 +428,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               onClick={togglePlay}
               style={{ filter: `brightness(${brightness}%)` }}
             />
-            <div className={`${prefix}-video-overlay ${showControls ? `${prefix}-video-overlay--visible` : ''}`}>
+            <div
+              className={`${prefix}-video-overlay ${showControls ? `${prefix}-video-overlay--visible` : ''}`}
+            >
               <span className={`${prefix}-video-title`}>
                 {currentVideo.name}
               </span>
@@ -595,6 +623,41 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
               </div>
             )}
           </Modal>
+
+          {showNextVideoModal && nextVideoInfo && (
+            <div
+              className={`${prefix}-next-video-modal-overlay`}
+              onClick={handleSkipNext}
+            >
+              <div
+                className={`${prefix}-next-video-modal`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className={`${prefix}-next-video-modal-header`}>
+                  <span>当前视频已播放完毕</span>
+                </div>
+                <div className={`${prefix}-next-video-modal-body`}>
+                  <div className={`${prefix}-next-video-thumbnail`}>
+                    <video src={nextVideoInfo.path} />
+                  </div>
+                  <div className={`${prefix}-next-video-info`}>
+                    <div className={`${prefix}-next-video-name`}>
+                      {nextVideoInfo.name}
+                    </div>
+                    <div className={`${prefix}-next-video-label`}>
+                      下一个视频
+                    </div>
+                  </div>
+                </div>
+                <div className={`${prefix}-next-video-modal-footer`}>
+                  <Button onClick={handleSkipNext}>取消</Button>
+                  <Button type='primary' onClick={handlePlayNext}>
+                    播放下一个
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -209,19 +209,59 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [currentVideo?.path]);
 
-  const handleSeek = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = e.currentTarget.getBoundingClientRect();
-      const ratio = Math.max(
-        0,
-        Math.min(1, (e.clientX - rect.left) / rect.width),
-      );
-      if (videoRef.current && duration > 0) {
-        videoRef.current.currentTime = ratio * duration;
-      }
-    },
-    [duration],
-  );
+  const [isDraggingProgress, setIsDraggingProgress] = useState(false);
+  const [dragProgress, setDragProgress] = useState(0);
+  const [dragX, setDragX] = useState<number | null>(null);
+  const [hoverX, setHoverX] = useState<number | null>(null);
+  const [hoverProgress, setHoverProgress] = useState<number | null>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
+  const handleProgressMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width),
+    );
+    setDragProgress(ratio);
+    setDragX(e.clientX - rect.left);
+    setIsDraggingProgress(true);
+  }, []);
+
+  const handleProgressMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = Math.max(
+      0,
+      Math.min(1, (e.clientX - rect.left) / rect.width),
+    );
+    if (isDraggingProgress) {
+      setDragX(e.clientX - rect.left);
+      setDragProgress(ratio);
+    } else {
+      setHoverX(e.clientX - rect.left);
+    }
+    setHoverProgress(ratio);
+  }, [isDraggingProgress]);
+
+  const handleProgressMouseLeave = useCallback(() => {
+    setHoverX(null);
+    setHoverProgress(null);
+    setDragX(null);
+  }, []);
+
+  const handleProgressMouseUp = useCallback(() => {
+    if (isDraggingProgress && videoRef.current && duration > 0) {
+      videoRef.current.currentTime = dragProgress * duration;
+    }
+    setIsDraggingProgress(false);
+    setDragX(null);
+  }, [isDraggingProgress, dragProgress, duration]);
+
+  const showTime = isDraggingProgress || hoverProgress !== null;
+  const currentProgress = isDraggingProgress ? dragProgress : (hoverProgress ?? 0);
+  const timePosition = isDraggingProgress ? dragX : hoverX;
+  const displayTime = showTime ? formatTime(currentProgress * duration) : null;
 
   const handleVolumeChange = useCallback((value: number) => {
     setVolume(value);
@@ -447,14 +487,34 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <div
             className={`${prefix}-controls ${showControls ? `${prefix}-controls--visible` : ''}`}
           >
-            <div className={`${prefix}-progress-bar`} onClick={handleSeek}>
+            <div
+              ref={progressBarRef}
+              className={`${prefix}-progress-bar`}
+              onMouseDown={handleProgressMouseDown}
+              onMouseMove={handleProgressMouseMove}
+              onMouseUp={handleProgressMouseUp}
+              onMouseLeave={handleProgressMouseLeave}
+            >
               <div
                 className={`${prefix}-progress`}
                 style={{
-                  width:
-                    duration > 0 ? `${(currentTime / duration) * 100}%` : '0%',
+                  width: isDraggingProgress
+                    ? `${dragProgress * 100}%`
+                    : duration > 0
+                    ? `${(currentTime / duration) * 100}%`
+                    : '0%',
                 }}
-              />
+              >
+                {showTime && timePosition !== null && (
+                  <div
+                    className={`${prefix}-progress-time`}
+                    style={{ left: `${timePosition}px` }}
+                  >
+                    {displayTime}
+                  </div>
+                )}
+                <div className={`${prefix}-progress-thumb`} />
+              </div>
             </div>
 
             <div className={`${prefix}-buttons`}>

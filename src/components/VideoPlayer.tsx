@@ -89,6 +89,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({
   }, []);
 
   useEffect(() => {
+    if (videoRef.current && playbackRate !== 1) {
+      videoRef.current.playbackRate = playbackRate;
+    }
+  }, [currentVideo?.path, playbackRate]);
+
+  useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
